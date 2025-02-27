@@ -3,11 +3,16 @@ package com.maxvone.tasks.domain.entities;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.ManyToAny;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -34,6 +39,10 @@ public class Task {
     @Column(name = "priority", nullable = false)
     private TaskPriority priority;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "task_list_id")
+    private TaskList taskList;
+
     @Column(name = "created", nullable = false)
     private LocalDateTime created;
 
@@ -44,13 +53,14 @@ public class Task {
     }
 
     public Task(UUID id, String title, String description, LocalDateTime dueDate, TaskStatus status,
-            TaskPriority priority, LocalDateTime created, LocalDateTime updated) {
+            TaskPriority priority, TaskList taskList, LocalDateTime created, LocalDateTime updated) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.dueDate = dueDate;
         this.status = status;
         this.priority = priority;
+        this.taskList = taskList;
         this.created = created;
         this.updated = updated;
     }
@@ -103,6 +113,14 @@ public class Task {
         this.priority = priority;
     }
 
+    public TaskList getTaskList() {
+        return taskList;
+    }
+
+    public void setTaskList(TaskList taskList) {
+        this.taskList = taskList;
+    }
+
     public LocalDateTime getCreated() {
         return created;
     }
@@ -129,6 +147,7 @@ public class Task {
         result = prime * result + ((dueDate == null) ? 0 : dueDate.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((priority == null) ? 0 : priority.hashCode());
+        result = prime * result + ((taskList == null) ? 0 : taskList.hashCode());
         result = prime * result + ((created == null) ? 0 : created.hashCode());
         result = prime * result + ((updated == null) ? 0 : updated.hashCode());
         return result;
@@ -167,6 +186,11 @@ public class Task {
             return false;
         if (priority != other.priority)
             return false;
+        if (taskList == null) {
+            if (other.taskList != null)
+                return false;
+        } else if (!taskList.equals(other.taskList))
+            return false;
         if (created == null) {
             if (other.created != null)
                 return false;
@@ -183,9 +207,7 @@ public class Task {
     @Override
     public String toString() {
         return "Task [id=" + id + ", title=" + title + ", description=" + description + ", dueDate=" + dueDate
-                + ", status=" + status + ", priority=" + priority + ", created=" + created + ", updated=" + updated
-                + "]";
+                + ", status=" + status + ", priority=" + priority + ", taskList=" + taskList + ", created=" + created
+                + ", updated=" + updated + "]";
     }
-
-    
 }
